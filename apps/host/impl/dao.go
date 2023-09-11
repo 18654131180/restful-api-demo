@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/18654131180/restful-api-demo/apps/host"
+
+	"gitee.com/go-course/restful-api-demo-g7/apps/host"
 )
 
 // 完成对象和数据库直接的转换

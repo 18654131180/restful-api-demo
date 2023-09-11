@@ -1,10 +1,12 @@
-package version
+package version_test
 
 import (
 	"fmt"
 	"testing"
+
+	"gitee.com/go-course/restful-api-demo-g7/version"
 )
 
-func TestFullVersion(t *testing.T) {
-	fmt.Println(FullVersion())
+func TestVersion(t *testing.T) {
+	fmt.Println(version.FullVersion())
 }

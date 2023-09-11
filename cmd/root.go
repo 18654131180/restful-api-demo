@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/18654131180/restful-api-demo/version"
+
+	"gitee.com/go-course/restful-api-demo-g7/version"
 	"github.com/spf13/cobra"
 )
 
@@ -11,8 +12,8 @@ var vers bool
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "demo-api",
-	Short: "demo-api 后端",
-	Long:  "demo-api 后端",
+	Short: "demo-api 后端API",
+	Long:  "demo-api 后端API",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if vers {
 			fmt.Println(version.FullVersion())

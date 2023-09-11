@@ -1,7 +1,13 @@
 package host
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/go-playground/validator/v10"
+	"github.com/imdario/mergo"
 )
 
 var (
@@ -38,8 +44,37 @@ type Host struct {
 	*Describe
 }
 
+// 对象全量更新
+func (h *Host) Put(obj *Host) error {
+	if obj.Id != h.Id {
+		return fmt.Errorf("id not equal")
+	}
+
+	*h.Resource = *obj.Resource
+	*h.Describe = *obj.Describe
+	return nil
+}
+
+// 对象的局部更新
+func (h *Host) Patch(obj *Host) error {
+	// if obj.Name != "" {
+	// 	h.Name = obj.Name
+	// }
+	// if obj.CPU != 0 {
+	// 	h.CPU = obj.CPU
+	// }
+	// 比如 obj.A  obj.B  只想修改obj.B该属性
+	return mergo.MergeWithOverwrite(h, obj)
+}
+
 func (h *Host) Validate() error {
 	return validate.Struct(h)
+}
+
+func (h *Host) InjectDefault() {
+	if h.CreateAt == 0 {
+		h.CreateAt = time.Now().UnixMilli()
+	}
 }
 
 type Vendor int
@@ -81,14 +116,85 @@ type Describe struct {
 	SerialNumber string `json:"serial_number"`              // 序列号
 }
 
-type QueryHostRequest struct {
+func NewQueryHostFromHTTP(r *http.Request) *QueryHostRequest {
+	req := NewQueryHostRequest()
+	// query string
+	qs := r.URL.Query()
+	pss := qs.Get("page_size")
+	if pss != "" {
+		req.PageSize, _ = strconv.Atoi(pss)
+	}
+
+	pns := qs.Get("page_number")
+	if pns != "" {
+		req.PageNumber, _ = strconv.Atoi(pns)
+	}
+
+	req.Keywords = qs.Get("kws")
+	return req
 }
 
-type UpdateHostRequest struct {
-	*Describe
+func NewQueryHostRequest() *QueryHostRequest {
+	return &QueryHostRequest{
+		PageSize:   20,
+		PageNumber: 1,
+	}
+}
+
+type QueryHostRequest struct {
+	PageSize   int    `json:"page_size"`
+	PageNumber int    `json:"page_number"`
+	Keywords   string `json:"kws"`
+}
+
+func (req *QueryHostRequest) GetPageSize() uint {
+	return uint(req.PageSize)
+}
+
+func (req *QueryHostRequest) OffSet() int64 {
+	return int64((req.PageNumber - 1) * req.PageSize)
+}
+
+func NewDescribeHostRequestWithId(id string) *DescribeHostRequest {
+	return &DescribeHostRequest{
+		Id: id,
+	}
 }
 
 type DescribeHostRequest struct {
+	Id string
+}
+
+type UPDATE_MODE string
+
+const (
+	// 全量更新
+	UPDATE_MODE_PUT UPDATE_MODE = "put"
+	// 局部更新
+	UPDATE_MODE_PATCH UPDATE_MODE = "patch"
+)
+
+func NewPutUpdateHostRequest(id string) *UpdateHostRequest {
+	h := NewHost()
+	h.Id = id
+	return &UpdateHostRequest{
+		UpdateMode: UPDATE_MODE_PUT,
+		Host:       h,
+	}
+}
+
+func NewPatchUpdateHostRequest(id string) *UpdateHostRequest {
+	h := NewHost()
+	h.Id = id
+	return &UpdateHostRequest{
+		UpdateMode: UPDATE_MODE_PATCH,
+		Host:       h,
+	}
+}
+
+type UpdateHostRequest struct {
+	UpdateMode UPDATE_MODE `json:"update_mode"`
+	*Host
 }
 
 type DeleteHostRequest struct {
