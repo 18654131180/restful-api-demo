@@ -87,6 +87,7 @@ func (i *HostServiceImpl) update(ctx context.Context, ins *host.Host) error {
 	// 1. 无报错，则Commit 事务
 	// 2. 有报错, 则Rollback 事务
 	defer func() {
+		i.l.Debugf("host update in db: %s", *ins)
 		if err != nil {
 			if err := tx.Rollback(); err != nil {
 				i.l.Error("rollback error, %s", err)

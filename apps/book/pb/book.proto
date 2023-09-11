@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package demo.book;
+option go_package = "gitee.com/go-course/restful-api-demo-g7/apps/book";
+
+import "apps/book/pb/req.proto";
+
+service Service {
+    // pkg.struct 定义在外部依赖的引用
+    // rpc CreateBook(demo.book.CreateBookRequest) returns(Book);
+
+    // pkg.struct 定义在外部依赖的引用
+    // rpc CreateBook(demo.book.req.CreateBookRequest) returns(Book);
+
+    // pkg.struct 可以省略与本包名称 公共的前缀(demo.book)
+    // rpc CreateBook(req.CreateBookRequest) returns(Book);
+
+    rpc CreateBook(CreateBookRequest) returns(Book);
+    rpc QueryBook(QueryBookRequest) returns(BookSet);
+    rpc DescribeBook(DescribeBookRequest) returns(Book);
+    rpc UpdateBook(UpdateBookRequest) returns(Book);
+    rpc DeleteBook(DeleteBookRequest) returns(Book);
+}
+
+enum Catalog {
+    TECH = 0;
+    EDU = 1;
+}
+
+// Book todo
+message Book {
+    // 唯一ID
+    // @gotags: json:"id"
+    string id = 1;
+    // 录入时间
+    // @gotags: json:"create_at"
+    int64 create_at = 2;
+    // 更新时间
+    // @gotags: json:"update_at"
+    int64 update_at = 3;
+    // 更新人
+    // @gotags: json:"update_by"
+    string update_by = 4;
+    // 书本信息
+    // @gotags: json:"data"
+    CreateBookRequest data = 5;
+}
+
+// BookSet todo
+message BookSet {
+    // 分页时，返回总数量
+    // @gotags: json:"total"
+    int64 total = 1;
+    // 一页的数据
+    // @gotags: json:"items"
+    repeated Book items = 2;
+}
+

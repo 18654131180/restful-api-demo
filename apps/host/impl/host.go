@@ -136,6 +136,7 @@ func (i *HostServiceImpl) UpdateHost(ctx context.Context, req *host.UpdateHostRe
 		return nil, err
 	}
 
+	i.l.Debugf("host in db: %s", *ins)
 	// 根据更新的模式, 更新对象
 	switch req.UpdateMode {
 	case host.UPDATE_MODE_PUT:
@@ -151,6 +152,7 @@ func (i *HostServiceImpl) UpdateHost(ctx context.Context, req *host.UpdateHostRe
 		return nil, fmt.Errorf("update_mode only requred put/patch")
 	}
 
+	i.l.Debugf("host update: %s", *ins)
 	// 检查更新后的数据是否合法
 	if err := ins.Validate(); err != nil {
 		return nil, err
